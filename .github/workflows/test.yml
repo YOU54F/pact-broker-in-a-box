@@ -19,7 +19,7 @@ jobs:
     - name: test pb in a box
       shell: bash
       run: |
-        curl -fsSL https://raw.githubusercontent.com/YOU54F/traveling-ruby/traveling-pact/cli.sh | sh
+        curl -fsSL https://raw.githubusercontent.com/YOU54F/traveling-ruby/traveling-pact/cli.sh | sh -s -- --ci
         pact-broker-app.sh &
         wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- 0.0.0.0:9292 -t 20 -- echo broker is up
         killall ruby || true
