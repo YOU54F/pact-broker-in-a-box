@@ -31,4 +31,5 @@ killall ruby || true
 netcat might be under `netcat-traditional` or `netcat-openbsd` depending on your distro.
 
 Source script:- https://github.com/YOU54F/traveling-ruby/blob/traveling-pact/cli.sh
-Srouce release:- https://github.com/YOU54F/traveling-ruby/releases/tag/rel-20230803-pact
+
+Source release:- https://github.com/YOU54F/traveling-ruby/releases/tag/rel-20230803-pact
