@@ -1,0 +1,39 @@
+BROKER_TEMPLATE: &BROKER_TEMPLATE
+  env:
+    TRAVELING_RUBY_INSTALL_PATH: ${HOME}/.pact
+    PATH: ${HOME}/.pact:${PATH}
+  broker_test_script: |
+    curl -fsSL https://raw.githubusercontent.com/YOU54F/traveling-ruby/traveling-pact/cli.sh | sh
+    pact-broker-app.sh &
+    sleep ${PACT_BROKER_TIMEOUT:-3}
+    curl 0.0.0.0:9292
+    killall ruby || true
+
+broker_macos_task:
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
+  <<: *BROKER_TEMPLATE
+broker_linux_arm_task:
+  arm_container:
+    image: python:3.11-slim
+  deps_script: apt update -y && apt install -y curl procps
+  <<: *BROKER_TEMPLATE
+broker_linux_amd_task:
+  container:
+    image: python:3.11-slim
+  env:
+    PACT_BROKER_TIMEOUT: 15
+  deps_script: apt update -y && apt install -y curl procps
+  <<: *BROKER_TEMPLATE
+broker_linux_arm_alpine_task:
+  arm_container:
+    image: python:3.11-alpine
+  deps_script: apk add curl procps gcompat libc6-compat bash
+  <<: *BROKER_TEMPLATE
+broker_linux_amd_alpine_task:
+  container:
+    image: python:3.11-alpine
+  env:
+    PACT_BROKER_TIMEOUT: 15
+  deps_script: apk add curl procps gcompat libc6-compat bash
+  <<: *BROKER_TEMPLATE
