@@ -5,7 +5,7 @@ BROKER_TEMPLATE: &BROKER_TEMPLATE
   broker_test_script: |
     curl -fsSL https://raw.githubusercontent.com/YOU54F/traveling-ruby/traveling-pact/cli.sh | sh
     pact-broker-app.sh &
-    wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- 0.0.0.0:9292 -- echo broker is up
+    wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- 0.0.0.0:9292 -t 20 -- echo broker is up
     killall ruby || true
 
 broker_macos_task:
@@ -15,12 +15,12 @@ broker_macos_task:
 broker_linux_arm_task:
   arm_container:
     image: python:3.11-slim
-  deps_script: apt update -y && apt install -y wget curl procps
+  deps_script: apt update -y && apt install -y wget curl procps nc
   <<: *BROKER_TEMPLATE
 broker_linux_amd_task:
   container:
     image: python:3.11-slim
-  deps_script: apt update -y && apt install -y wget curl procps
+  deps_script: apt update -y && apt install -y wget curl procps nc
   <<: *BROKER_TEMPLATE
 broker_linux_arm_alpine_task:
   arm_container:

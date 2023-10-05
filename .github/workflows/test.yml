@@ -1,0 +1,25 @@
+name: broker in a box
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+
+    - name: test pb in a box
+      shell: bash
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/YOU54F/traveling-ruby/traveling-pact/cli.sh | sh
+        pact-broker-app.sh &
+        wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- 0.0.0.0:9292 -t 20 -- echo broker is up
+        killall ruby || true
