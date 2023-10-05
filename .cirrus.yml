@@ -15,12 +15,12 @@ broker_macos_task:
 broker_linux_arm_task:
   arm_container:
     image: python:3.11-slim
-  deps_script: apt update -y && apt install -y wget curl procps nc
+  deps_script: apt update -y && apt install -y wget curl procps netcat
   <<: *BROKER_TEMPLATE
 broker_linux_amd_task:
   container:
     image: python:3.11-slim
-  deps_script: apt update -y && apt install -y wget curl procps nc
+  deps_script: apt update -y && apt install -y wget curl procps netcat
   <<: *BROKER_TEMPLATE
 broker_linux_arm_alpine_task:
   arm_container:

@@ -15,7 +15,8 @@ jobs:
         os: [ubuntu-latest, macos-latest]
 
     steps:
-
+    - run: echo "TRAVELING_RUBY_INSTALL_PATH=${HOME}/.pact" >>$GITHUB_ENV
+    - run: echo "PATH=${PATH}:${PWD}/.pact" >>$GITHUB_ENV
     - name: test pb in a box
       shell: bash
       run: |
