@@ -2,7 +2,7 @@ name: broker in a box
 
 on:
   push:
-    branches: [ "main" ]
+    # branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -12,15 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest,  wuindows-latest]
 
     steps:
-    - run: echo "TRAVELING_RUBY_INSTALL_PATH=${HOME}/.pact" >>$GITHUB_ENV
-    - run: echo "PATH=${PATH}:${HOME}/.pact" >>$GITHUB_ENV
-    - name: test pb in a box
-      shell: bash
-      run: |
-        curl -fsSL https://raw.githubusercontent.com/YOU54F/traveling-ruby/traveling-pact/cli.sh | sh -s -- --ci
-        pact-broker-app.sh &
-        wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- 0.0.0.0:9292 -t 20 -- echo broker is up
-        killall ruby || true
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - id: pact-cli
+        uses: you54f/pact-broker-in-a-box@via_ruby
+      - name: Check broker
+        run: |
+          curl localhoost:9292

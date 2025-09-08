@@ -1,0 +1,16 @@
+name: pact-broker-cli
+description: A CLI client for the Pact Broker. Publish/retrieve pacts and verification results.
+runs:
+  using: "composite"
+  steps:
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
+          working-directory: $GITHUB_ACTION_PATH
+      - run: bundle install
+        shell: bash
+      - name: start broker
+        shell: bash
+        run: |
+          bundle exec puma --pidfile $GITHUB_ACTION_PATH/broker.pid &
+          wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- curl http://localhost:9292 -t 20 -- echo broker is up
