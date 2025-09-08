@@ -6,8 +6,9 @@ runs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.3
-      - run: bundle install
-        shell: bash
+          bundler-cache: true
+      # - run: bundle install
+      #   shell: bash
       - name: start broker
         shell: bash
         run: |
