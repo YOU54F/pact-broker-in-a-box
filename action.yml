@@ -7,8 +7,18 @@ runs:
         with:
           ruby-version: 3.3
           bundler-cache: true
-      # - run: bundle install
-      #   shell: bash
+      - name: install scoop
+        shell: powershell
+        if: runner.os == 'windows'
+        run: |
+          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+          "$HOME\scoop\shims\" >> $env:GITHUB_PATH
+      - name: install wget and netcat via scoop
+        if: runner.os == 'windows'
+        shell: powershell
+        run: |
+          scoop install wget
+          scoop install netcat
       - name: start broker
         shell: bash
         run: |
