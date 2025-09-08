@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - id: pact-broker-cli
-        uses: you54f/pact-broker-in-a-box@${{ github.sha }}
+        uses: you54f/pact-broker-in-a-box@main
       - name: Check broker
         run: |
           curl localhost:9292
