@@ -1,5 +1,6 @@
 name: pact-broker
 description: A Pact Broker designed to run cross platform in CI/CD pipelines with minimal setup.
+
 runs:
   using: "composite"
   steps:
@@ -7,6 +8,7 @@ runs:
         with:
           ruby-version: 3.3
           bundler-cache: true
+        working-directory: ${{ github.action_path }}
       - name: install scoop
         shell: powershell
         if: runner.os == 'windows'
@@ -21,6 +23,7 @@ runs:
           scoop install netcat
       - name: start broker
         shell: bash
+        working-directory: ${{ github.action_path }}
         run: |
-          bundle exec puma --pidfile $GITHUB_ACTION_PATH/broker.pid &
+          bundle exec puma --pidfile broker.pid &
           wget -qO- https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for | sh -s -- localhost:9292 -t 120 -- echo broker is up
