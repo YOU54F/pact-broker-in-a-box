@@ -20,4 +20,4 @@ jobs:
         uses: you54f/pact-broker-in-a-box@via_ruby
       - name: Check broker
         run: |
-          curl localhoost:9292
+          curl localhost:9292
