@@ -11,14 +11,12 @@ runs:
           iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
           "$HOME\scoop\shims\" >> $env:GITHUB_PATH
       - name: install wget and netcat via scoop
-        if: runner.os == 'windows'
+        if: runner.os == 'windows' # 7zip required for setup-ruby
         shell: powershell
         run: |
           scoop install wget netcat 7zip
-          # scoop install netcat
-          # scoop install netcat
       - uses: ruby/setup-ruby@v1
-        with:
+        with: # can we avoid setup-ruby and just use the images system ruby? if so, we may not have bundler or caching. sqlite3 needs to build from src on windows
           ruby-version: 3.3
           bundler-cache: true
           working-directory: ${{ github.action_path }}
