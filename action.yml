@@ -1,6 +1,5 @@
 name: pact-broker
 description: A Pact Broker designed to run cross platform in CI/CD pipelines with minimal setup.
-
 runs:
   using: "composite"
   steps:
@@ -10,16 +9,79 @@ runs:
         run: |
           iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
           "$HOME\scoop\shims\" >> $env:GITHUB_PATH
-      - name: install wget and netcat via scoop
-        if: runner.os == 'windows' # 7zip required for setup-ruby
+      - name: install wget and netcat via scoop (for broker healthcheck)
+        if: runner.os == 'windows'
         shell: powershell
         run: |
-          scoop install wget netcat 7zip
+          scoop config use_external_7zip true
+          scoop install wget netcat
+      # - name: install pact via scoop
+      #   if: runner.os == 'windows'
+      #   shell: powershell
+      #   run: |
+      #     scoop bucket add pact https://github.com/you54f/scoop
+      #     scoop install pact
+      #     scoop search pact
+      #     pact --help
+      - name: install pact via choco
+        if: runner.os == 'windows'
+        shell: powershell
+        run: |
+          curl https://github.com/YOU54F/choco/releases/download/choco/pact.0.9.0.nupkg -OutFile pact.nupkg
+          if ("${{ runner.arch }}" -eq "ARM64") {
+          choco install -y pact --source . --params "'/ForceARM64:true'"
+            } else {
+          choco install -y pact --source .
+            }
+          pact --help
+      - name: install linuxbrew
+        if: ${{ runner.os == 'Linux' }}
+        shell: bash
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+      - name: install pact via homebrew
+        if: runner.os != 'windows'
+        shell: bash
+        run: |
+          brew install you54f/brew/pact
+          pact --help
       - uses: ruby/setup-ruby@v1
-        with: # can we avoid setup-ruby and just use the images system ruby? if so, we may not have bundler or caching. sqlite3 needs to build from src on windows
-          ruby-version: 3.3
+        if: ${{ runner.os != 'windows' }}
+        with:
+          ruby-version: 3.4 # for windows on arm (3.4+)
           bundler-cache: true
           working-directory: ${{ github.action_path }}
+      - uses: ruby/setup-ruby-pkgs@v1
+        if: runner.os == 'windows' # no bundler cache as we need to install nokogiri/sqlite3 forks first
+        with:
+          ruby-version: 3.4 # for windows on arm (3.4+)
+          working-directory: ${{ github.action_path }}
+          mingw:             libxml2 libxslt sqlite3
+      - name: install nokogiri and sqlite3 on windows arm
+        if: runner.os == 'windows' && runner.arch == 'ARM64'
+        shell: powershell
+        working-directory: ${{ github.action_path }}
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/YOU54F/nokogiri/releases/download/v1.18.10/nokogiri-1.18.10-aarch64-mingw-ucrt.gem" -OutFile "nokogiri-1.18.10-aarch64-mingw-ucrt.gem"
+          Invoke-WebRequest -Uri "https://github.com/YOU54F/sqlite3-ruby/releases/download/v2.7.4/sqlite3-2.7.4-aarch64-mingw-ucrt.gem" -OutFile "sqlite3-2.7.4-aarch64-mingw-ucrt.gem"
+          bundle config build.nokogiri --use-system-libraries
+          bundle config build.sqlite3 --use-system-libraries
+          gem install sqlite3-2.7.4-aarch64-mingw-ucrt.gem
+          gem install nokogiri-1.18.10-aarch64-mingw-ucrt.gem
+          bundle install
+      - name: install nokogiri and sqlite3 on windows x64
+        if: runner.os == 'windows' && runner.arch == 'x64'
+        shell: powershell
+        working-directory: ${{ github.action_path }}
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/YOU54F/nokogiri/releases/download/v1.18.10/nokogiri-1.18.10-x64-mingw-ucrt.gem" -OutFile "nokogiri-1.18.10-x64-mingw-ucrt.gem"
+          Invoke-WebRequest -Uri "https://github.com/YOU54F/sqlite3-ruby/releases/download/v2.7.4/sqlite3-2.7.4-x64-mingw-ucrt.gem" -OutFile "sqlite3-2.7.4-x64-mingw-ucrt.gem"
+          bundle config build.nokogiri --use-system-libraries
+          bundle config build.sqlite3 --use-system-libraries
+          gem install sqlite3-2.7.4-x64-mingw-ucrt.gem
+          gem install nokogiri-1.18.10-x64-mingw-ucrt.gem
+          bundle install
       - name: start broker
         shell: bash
         working-directory: ${{ github.action_path }}
